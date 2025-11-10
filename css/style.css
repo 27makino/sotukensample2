@@ -1,7 +1,7 @@
 html{
     background-color: rgb(230,244,241);
 }
-input[type="button"]{
+input[type="button"],input[type="submit"]{
     cursor: pointer;
 }
 #exit-button{
@@ -75,7 +75,7 @@ input[type="button"]{
 /* ここまでトップ画面 */
 /* ここから解説評価(詐欺体験) */
 #feedback h2{
-    margin: 0 0 0 8%;
+    margin: 75px 0 0 8%;
     font-size: 30px;
 }
 #feedback p{
@@ -103,3 +103,22 @@ input[type="button"]{
 }
 
 /* ここまで解説評価(詐欺体験) */
+
+
+
+/* ここから解説評価(クイズ) */
+#quiz-review h1{
+    text-align: center;
+    font-size: 40px;
+    margin:10px;
+}
+#quiz-review #feedback h2{
+    margin: 0 0 0 8%;
+    font-size: 30px;
+}
+#quiz-review #feedback p{
+    border: solid 6px rgb(103,231,212);
+    box-shadow: 15px 13px 0 rgb(103,231,212);
+}
+
+/* ここまで解説評価(クイズ) */
