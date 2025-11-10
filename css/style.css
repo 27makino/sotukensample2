@@ -1,7 +1,7 @@
 html{
     background-color: rgb(230,244,241);
 }
-input[type="button"],input[type="submit"]{
+input[type="button"],input[type="submit"],input[type="radio"] + .label{
     cursor: pointer;
 }
 #exit-button{
@@ -10,8 +10,36 @@ input[type="button"],input[type="submit"]{
     margin: 30px 5% 0 30px;
     border-radius: 30px;
     background-color: rgb(0,162,255);
+    box-shadow: 0 10px 0 rgb(6, 101, 196);
     border: none;
     font-size: 20px;
+    transition: all 0.15s ease;
+}
+#exit-button:hover{
+    box-shadow: none;
+    transform: translateY(13px);
+}
+
+#button-area{
+    text-align: right;
+    margin-top: 20px;
+}
+#button-area input[type="submit"]{
+    width: 300px;
+    height: 80px;
+    margin: 10px;
+    margin-right: 10%;
+    padding: 20px;
+    border-radius: 25px;
+    background-color: rgb(255,184,61);
+    box-shadow: 0 10px 0 rgb(168, 174, 255);
+    border: none;
+    font-size: 20px;
+    transition: all 0.15s ease;
+}
+#button-area input[type="submit"]:hover{
+    box-shadow: none !important;
+    transform: translateY(13px);
 }
 
 /* ここからトップ画面 */
@@ -25,52 +53,58 @@ input[type="button"],input[type="submit"]{
     margin: 0;
     padding: 0;
     width: 40%;
-    height: 85px;
+    height: 90px;
     border-radius: 25px 25px 0 0;
     border: none;
     font-size: 25px;
 }
 #mode #trial{
     background-color: rgb(168, 174, 255);
+    border: solid 4px rgb(168, 174, 255);
+    border-bottom: none;
+    transition: all 0.15s ease;
 }
 #mode #quiz{
-    background-color: rgb(103,231,212);
+    background-color: rgb(230,244,241);
+    border: solid 4px rgb(103,231,212);
+    border-bottom: none;
+    transition: all 0.15s ease;
 }
+
 #type{
     background-color: white;
     border-radius: 34px;
     max-width: 1291px;
     margin: auto;
-    padding: 20px;
+    padding: 50px;
     text-align: center;
     border: solid 6px rgb(168, 174, 255);
     box-shadow: 15px 13px 0 rgb(168, 174, 255);
+    transition: all 0.15s ease;
 }
-#type input[type="button"]{
+#type input[type="radio"]{
+    display: none;
+}
+#type .label{
+    display: inline-block;
     width: auto;
     min-width: 200px;
     height: 80px;
     margin: 30px;
     padding: 0 50px;
+    align-content: center;
     border-radius: 25px;
-    background-color: rgb(189,226,255);
-    border: none;
+    background-color: white;
+    border: solid 6px rgb(121, 197, 255);
     font-size: 20px;
 }
-#button-area{
-    text-align: right;
-    margin-top: 20px;
+#type .label:hover{
+    background-color: rgba(121, 197, 255,0.5);
+    transition: all 0.15s ease;
 }
-#button-area input[type="submit"]{
-    width: 300px;
-    height: 80px;
-    margin: 10px;
-    margin-right: 10%;
-    padding: 20px;
-    border-radius: 25px;
-    background-color: rgb(255,184,61);
-    border: none;
-    font-size: 20px;
+#type input[type="radio"]:checked + .label{
+    background-color: rgb(121, 197, 255);
+    transition: all 0.15s ease;
 }
 /* ここまでトップ画面 */
 /* ここから解説評価(詐欺体験) */
