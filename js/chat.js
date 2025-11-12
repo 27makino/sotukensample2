@@ -27,6 +27,8 @@ window.addEventListener('DOMContentLoaded', function() {
     aiP.textContent = "こんにちは！";
     firstAiComment.appendChild(aiP);
     chatBox.appendChild(firstAiComment);
+
+    speak("こんにちは！");
 });
 
 
@@ -60,7 +62,41 @@ document.getElementById('displayButton').addEventListener('click', function() {
         aiComment.appendChild(aiP);
         chatBox.appendChild(aiComment);
 
+        speak("テスト");
         // 一番下までスクロール
         chatBox.scrollTop = chatBox.scrollHeight;
     }, 500);
 });
+
+//読み上げ機能
+const voice_select = document.getElementById("voice-select");
+const speed_select = document.getElementById("speed-select");
+//音声リストに音声を追加
+const appendVoices = function(){
+    //日本語のみ追加
+    const voice = speechSynthesis.getVoices().filter((v) => v.lang === 'ja-JP');
+    voice.forEach((v) => {
+        const option = document.createElement("option");
+        option.value = v.name;
+        option.innerText = v.name;
+        voice_select.appendChild(option);
+    });
+}
+appendVoices();
+
+speechSynthesis.onvoiceschanged = e => {
+    appendVoices();
+}
+
+const speak = function(text){
+    const uttr = new SpeechSynthesisUtterance(text);
+    if(voice_select.value == "なし"){
+        return;
+    }
+    console.log(text);
+    uttr.voice = speechSynthesis.getVoices().filter((v) => v.name === voice_select.value)[0];
+    uttr.lang = 'ja-JP';
+    uttr.rate = speed_select.value;
+    uttr.pitch = 1.0;
+    window.speechSynthesis.speak(uttr);
+}
