@@ -5,13 +5,13 @@ let sessionId = "";
 const type = sessionStorage.getItem("type");
 document.getElementById("type-caption").innerHTML = type;
 
-//プロンプト
+//プロンプト(ドキュメントに書いてあるのをコピペするとかなり長くなる、DBから取得するようにした方が良いかもしれない)
 const type_prompt = new Map([
-    ["オレオレ詐欺","こんにちは。"],
-    ["還付金詐欺","こんばんは。"],
-    ["架空請求詐欺","おはようございます。"],
-    ["投資詐欺","ぐっどもーにんぐ。"],
-    ["SNS・マッチングアプリ詐欺","あなたは誰ですか？"]
+    ["オレオレ詐欺(親族)","こんにちは。"],
+    ["オレオレ詐欺(警察)","こんばんは。"],
+    ["還付金詐欺","おはようございます。"],
+    ["架空料金請求詐欺","ぐっどもーにんぐ。"],
+    ["融資保証金詐欺","あなたは誰ですか？"]
 ]);
 
 //入力欄の設定
@@ -91,15 +91,25 @@ window.addEventListener('DOMContentLoaded', async function() {
     const firstAiComment = document.createElement('div');
     const aiP = document.createElement('p');
 
+    //注意事項
+    const noticeComment = document.createElement('div');
+    const noticeP = document.createElement('p');
+    noticeP.innerHTML = "シミュレーションに登場する人物・団体・会社はすべて架空のものであり、<br>実在の人物・団体・会社とは一切関係ありません。<br><br>"
+                        + "また、シミュレーション内で個人情報の入力を行わないようにしてください。";
+
     // 現在のHTMLファイル名を取得
     const pageName = window.location.pathname.split('/').pop();
 
     // ページごとにクラスを分ける
     if (pageName === 'chat.html') {
         firstAiComment.classList.add('aicomment');
+        noticeComment.classList.add('aicomment');
     } else if (pageName === 'quiz-chat.html') {
         firstAiComment.classList.add('quiz-aicomment');
+        noticeComment.classList.add('quiz-aicomment');
     }
+    noticeComment.appendChild(noticeP);
+    chatBox.appendChild(noticeComment);
 
     //チャットセッション開始
     try{
@@ -138,6 +148,7 @@ window.addEventListener('DOMContentLoaded', async function() {
         const data2 = await response2.json();
         const aiText = data2.result.replaceAll("*","").replaceAll("\n","<br>").replaceAll("#","");
         console.log(aiText);
+        speak(aiText);
         // AIの吹き出し
         aiP.innerHTML = aiText;
         firstAiComment.appendChild(aiP);
@@ -219,6 +230,7 @@ document.getElementById('displayButton').addEventListener('click', async functio
     //入力欄の無効化
     inputTextarea.disabled = true;
     inputTextarea.placeholder = "回答生成中・・・";
+    mike_button.disabled = true;
 
     inputTextarea.value = "";
     inputTextarea.style.height = "";
@@ -261,7 +273,7 @@ document.getElementById('displayButton').addEventListener('click', async functio
             aiComment.classList.add('quiz-aicomment');
         }
 
-        speak(data.result);
+        speak(aiText);
 
         // 一番下までスクロール
         chatBox.scrollTop = chatBox.scrollHeight;
@@ -277,6 +289,7 @@ document.getElementById('displayButton').addEventListener('click', async functio
     //入力欄の有効化
     inputTextarea.disabled = false;
     inputTextarea.placeholder = "入力欄";
+    mike_button.disabled = false;
 });
 
 //TOPボタンが押された時
