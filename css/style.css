@@ -338,6 +338,10 @@ input[type="button"],input[type="submit"],input[type="radio"] + .label{
 #mikeButton:hover{
     background-color: silver;
 }
+#mikeButton:disabled{
+    cursor:default;
+    background-color: silver;
+}
 
 #displayButton{
     all: unset;

@@ -30,11 +30,12 @@ quiz_button.addEventListener("click", () => {
 
 //選択した詐欺種類の取得
 const types = document.getElementsByName("types");
-const expain_text = new Map([["オレオレ詐欺","親族、警察官、弁護士などを装って金銭などをだまし取る詐欺。"],
+const expain_text = new Map([["オレオレ詐欺(親族)","親族を装って金銭などをだまし取る詐欺。"],
+                            ["オレオレ詐欺(警察)","警察官を装って金銭などをだまし取る詐欺。"],
                             ["還付金詐欺","税金の還付金があるなどと嘘を言い、金銭などをだまし取る詐欺。"],
-                            ["架空請求詐欺","架空の料金を請求し、金銭などをだまし取る詐欺。"],
-                            ["投資詐欺","偽の投資話を持ちかけ、金銭などをだまし取る詐欺。"],
-                            ["SNS・マッチングアプリ詐欺","SNSやマッチングアプリを通じて知り合った相手から金銭などをだまし取る詐欺。"]]);
+                            ["架空料金請求詐欺","架空の料金を請求し、金銭などをだまし取る詐欺。"],
+                            ["融資保証金詐欺","融資を保証するための名目で金銭などをだまし取る詐欺。"]
+                            ]);
 const explain = document.getElementById("explain");
 types.forEach((type) => {
     type.addEventListener('change', () => {
