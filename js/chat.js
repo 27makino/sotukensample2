@@ -119,12 +119,6 @@ window.addEventListener('DOMContentLoaded', async function() {
     const firstAiComment = document.createElement('div');
     const aiP = document.createElement('p');
 
-    //入力欄の無効化
-    inputTextarea.disabled = true;
-    inputTextarea.placeholder = "回答生成中・・・";
-    mike_button.disabled = true;
-    advice_button.disabled = true;
-
     //注意事項
     const noticeComment = document.createElement('div');
     const noticeP = document.createElement('p');
@@ -150,7 +144,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     //プロンプトをJSONファイルから取得
     let prompts = {};
     let type_prompt;
-    /*
+    
     fetch('js/prompt.json')
         .then(response => response.json())
         .then(data => {
@@ -166,11 +160,12 @@ window.addEventListener('DOMContentLoaded', async function() {
             alert("プロンプトの読み込みに失敗しました。：" + error);
             location.href = "index.html";
         })
-    */
-
+    
+        /*
         //Supabase からデータを取得
         const prompts_map = await getList();   
         type_prompt = prompts_map; 
+        */
         
 
     //チャットセッション開始
@@ -280,6 +275,10 @@ advice_button.addEventListener("click", async() => {
 document.getElementById('displayButton').addEventListener('click', async function() {
     const text = inputTextarea.value.trim();
     if (text === "") return;
+    if(text.length > 300){
+        alert("入力できる文字数は300文字までです。");
+        return;
+    }
     sendText(text);
 });
 
