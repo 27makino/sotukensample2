@@ -55,7 +55,6 @@ initialize();
 //セッションをメモリから削除する
 const cleanUpSession = function(sessionId){
     const sessionData = chatSessions[sessionId];
-    console.log(sessionData);
     if(sessionData){
         clearTimeout(sessionData.timerId);
         delete chatSessions[sessionId];

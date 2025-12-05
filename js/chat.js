@@ -1,3 +1,4 @@
+/*
 // ① Supabase をブラウザで使う正しい方法（CDN 版）
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -11,9 +12,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Supabaseで登録したテーブル名
 const TABLE_NAME = 'prompts';
-
-//セッションID
-let sessionId = "";
 
 const type_prompt = new Map();
 
@@ -36,7 +34,9 @@ export const getList = async () => {
   }
 };
 
-
+*/
+//セッションID
+let sessionId = "";
 
 //詐欺種類
 const type = sessionStorage.getItem("type");
@@ -140,11 +140,10 @@ window.addEventListener('DOMContentLoaded', async function() {
     noticeComment.appendChild(noticeP);
     chatBox.appendChild(noticeComment);
 
-
+    /*
     //プロンプトをJSONファイルから取得
     let prompts = {};
     let type_prompt;
-    
     fetch('js/prompt.json')
         .then(response => response.json())
         .then(data => {
@@ -161,15 +160,23 @@ window.addEventListener('DOMContentLoaded', async function() {
             location.href = "index.html";
         })
     
-        /*
+        
         //Supabase からデータを取得
         const prompts_map = await getList();   
         type_prompt = prompts_map; 
-        */
-        
 
-    //チャットセッション開始
+    */
+
     try{
+        //sessionStorageに格納されたプロンプトを取得
+        const savePrompt = sessionStorage.getItem("savePrompt");
+        if(!savePrompt){
+            throw new Error("トップページからやり直してください。");
+        }
+        const promptArray = JSON.parse(savePrompt);
+        const type_prompt = new Map(promptArray.map(item => [item.type, item.content]));
+
+        //チャットセッション開始
         const response = await fetch("http://localhost:3001/start");
         if(!response.ok){
             throw new Error(response.statusText);
