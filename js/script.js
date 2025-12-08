@@ -21,18 +21,32 @@ const predefinedTones = {
 };
 
 // ===============================================
-// 3. バックエンドサーバーのエンドポイントURL
-//    - フロントエンドがGemini APIと直接通信するのではなく、
-//      このプロキシサーバーを介して通信します。
-//    - ローカル開発環境では `http://localhost:3000` を使用。
-//    - デプロイ時には、実際のバックエンドサーバーのURLに更新する必要があります。
+// 3. バックエンドサーバーのエンドポイントURL（相対URLを使用）
+//    - フロントエンドとバックエンドを同一ドメインで配信する場合には
+//      相対パスでリクエストするのが最も安全です。
+//    - node/node.js のチャット用エンドポイントを利用します。
 // ===============================================
-const BACKEND_URL = 'http://localhost:3000/generate'; // バックエンドサーバーの `/generate` エンドポイント
+const BACKEND_ORIGIN = window.location.origin;
+const START_ENDPOINT = '/start';
+const SEND_ENDPOINT = '/send';
+let sessionId = null;
 
 // ===============================================
 // 4. ボタンクリックイベントリスナー
 //    - 「生成」ボタンがクリックされたときに実行される非同期関数です。
 // ===============================================
+async function startSession() {
+    try {
+        const resp = await fetch(BACKEND_ORIGIN + START_ENDPOINT, { method: 'GET' });
+        if (!resp.ok) throw new Error('セッションの開始に失敗しました');
+        const body = await resp.json();
+        return body.sessionId;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
 generateButton.addEventListener('click', async () => {
     // ユーザーの入力内容を取得し、前後の空白を除去
     const userQuestion = promptInput.value.trim();
@@ -73,14 +87,16 @@ generateButton.addEventListener('click', async () => {
     //    - fetch API を使用して、バックエンドサーバーに非同期でPOSTリクエストを送ります。
     // ===============================================
     try {
-        const response = await fetch(BACKEND_URL, {
-            method: "POST", // HTTP POSTメソッドを使用
-            headers: {
-                "Content-Type": "application/json" // リクエストボディがJSON形式であることを指定
-            },
-            // リクエストボディに、ユーザーの質問と口調の指示をJSON形式で含める
-            // これらのデータはバックエンドのserver.jsで受け取られます。
-            body: JSON.stringify({ userQuery: userQuestion, toneInstruction: toneInstruction }) // server.jsのreq.body.promptとreq.body.toneInstructionに対応
+        // セッションがなければ作成
+        if (!sessionId) {
+            sessionId = await startSession();
+            console.log('sessionId:', sessionId);
+        }
+
+        const response = await fetch(BACKEND_ORIGIN + SEND_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: sessionId, prompt: userQuestion })
         });
 
         // HTTPステータスが200番台（成功）でなかった場合
@@ -93,11 +109,10 @@ generateButton.addEventListener('click', async () => {
 
         // 成功した場合、バックエンドからの応答（JSON形式）を解析
         const data = await response.json();
-
-        // Geminiからの生成テキストがあれば表示、なければ「応答なし」メッセージ
-        outputDiv.innerHTML = data.generatedText
-            ? `<p>${data.generatedText}</p>`
-            : "<p>Geminiからの応答がありませんでした。</p>";
+        // Node backend returns { result: <text> }
+        outputDiv.innerHTML = data.result
+            ? `<p>${data.result}</p>`
+            : '<p>応答がありませんでした。</p>';
 
     } catch (error) {
         // エラーが発生した場合、コンソールとWebページにエラーメッセージを表示
