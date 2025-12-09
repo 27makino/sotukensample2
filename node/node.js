@@ -1,13 +1,18 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const {GoogleGenAI} = require("@google/genai");
 const cors = require("cors");
 const { message } = require("statuses");
 
 const app = express();
-const port = 3001
+const port = process.env.PORT || 3001
 
 const ai = new GoogleGenAI({});
+const MOCK_MODE = process.env.MOCK_MODE === 'true' || !process.env.GEMINI_API_KEY;
+if (MOCK_MODE) {
+    console.warn('Mock mode enabled for chat responses (no Gemini API calls will be made)');
+}
 
 //セッションの有効期限(30分)
 const session_timeout = 30 * 60 * 1000;
@@ -16,8 +21,10 @@ const chatSessions = {};
 const rateLimit = require("express-rate-limit");
 
 app.use(express.json());
-//AWSにデプロイしたら、この設定を変えること
-app.use(cors({origin: ["http://localhost:5500","http://127.0.0.1:5500"]}));
+// Add static serving of the repo root so the frontend can be served from the backend
+app.use(express.static(path.join(__dirname, '..')));
+// AWSにデプロイしたら、この設定を変えること
+app.use(cors({origin: ["http://localhost:5500","http://127.0.0.1:5500","https://tokushusagi-simulation.onrender.com"]}));
 
 async function initialize() {
     const {v4: uuidv4} = await import("uuid");
@@ -36,9 +43,15 @@ async function initialize() {
     app.get('/start', (req, res) => {
         const sessionId = uuidv4();
 
-        const chat = ai.chats.create({
-            model: "gemini-2.5-flash"
-        });
+        let chat;
+        if (!MOCK_MODE) {
+            chat = ai.chats.create({ model: "gemini-2.5-flash" });
+        } else {
+            // Create a mock chat object compatible with the real API
+            chat = {
+                sendMessage: async ({ message }) => ({ text: `(モック応答) 受け取った質問: ${message}` })
+            };
+        }
         //セッションID・チャットの紐付け
         chatSessions[sessionId] = {
             chat: chat,
@@ -101,12 +114,17 @@ app.post("/send", async (req,res) => {
 
     try{
         //メッセージ送信
-        const response = await chat.sendMessage({
-            message:prompt
-        })
-        res.json({result: response.text});
+        // If mock mode, the chat.sendMessage returns { text }
+        const response = await chat.sendMessage({ message: prompt });
+        const resultText = response?.text || response?.result || "";
+        res.json({ result: resultText });
     }catch(error){
-        console.log("生成エラー：", error.message);
+        console.log("生成エラー：", error.message || error);
+        if (error?.status === 429 || error?.error?.code === 429) {
+            // Rate-limited, forward the retry-after info if available
+            const retry = error?.error?.details?.find(d => d['@type'] && d['@type'].includes('RetryInfo'))?.retryDelay || null;
+            return res.status(429).json({ error: 'Rate limit exceeded', retryAfter: retry });
+        }
         res.status(500).json({error: "生成中にエラーが発生しました"})
     }
 });
@@ -122,4 +140,9 @@ app.post("/delete", async(req,res) => {
 
 app.listen(port, () => {
     console.log(`Backend server listening at http://localhost:${port}`);
+});
+
+// If root (/) is requested, serve the index.html from the project root
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
